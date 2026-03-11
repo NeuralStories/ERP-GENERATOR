@@ -502,18 +502,42 @@ export default function Backoffice({ tab, setTab }) {
                                                 <div style={{
                                                     fontSize: 11,
                                                     background: 'rgba(240, 192, 64, 0.04)',
-                                                    padding: '12px 15px',
-                                                    borderRadius: 8,
-                                                    border: '1px solid rgba(240, 192, 64, 0.15)',
-                                                    boxShadow: 'inset 0 0 20px rgba(0,0,0,0.2)',
+                                                    padding: '15px 18px',
+                                                    borderRadius: 10,
+                                                    border: '1px solid rgba(240, 192, 64, 0.2)',
+                                                    boxShadow: '0 4px 15px rgba(0,0,0,0.3)',
                                                     position: 'relative',
-                                                    marginTop: 10
+                                                    marginTop: 15,
+                                                    borderLeft: '4px solid var(--acc)'
                                                 }}>
-                                                    <div style={{ color: 'var(--acc)', fontWeight: 900, fontSize: 9, marginBottom: 6, letterSpacing: 1 }}>EXPEDIENTE MAESTRO</div>
-                                                    <div style={{ marginBottom: 8, color: 'var(--tx1)', lineHeight: 1.4, fontSize: 12 }}>{t.notas_diagnostico || t.accion_inmediata}</div>
-                                                    <div style={{ display: 'flex', gap: 15, opacity: 0.8, fontSize: 9, fontWeight: 700, textTransform: 'uppercase' }}>
-                                                        <span><span style={{ opacity: 0.5 }}>ORIGEN:</span> {t.origen_falla}</span>
-                                                        <span><span style={{ opacity: 0.5 }}>GRAVEDAD:</span> {t.gravedad_real}/5</span>
+                                                    <div style={{ color: 'var(--acc)', fontWeight: 900, fontSize: 10, marginBottom: 10, letterSpacing: 1.5, display: 'flex', justifyContent: 'space-between' }}>
+                                                        <span>EXPEDIENTE MAESTRO DETALLADO</span>
+                                                        <span style={{ fontSize: 9, opacity: 0.5 }}>TK-{t.num_ticket || '...'}</span>
+                                                    </div>
+
+                                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 15, marginBottom: 12 }}>
+                                                        <div>
+                                                            <div style={{ fontSize: 9, opacity: 0.5, marginBottom: 4 }}>ORIGEN DE FALLA</div>
+                                                            <div style={{ fontWeight: 700, color: 'var(--tx1)' }}>{t.origen_falla}</div>
+                                                        </div>
+                                                        <div>
+                                                            <div style={{ fontSize: 9, opacity: 0.5, marginBottom: 4 }}>GRAVEDAD REAL</div>
+                                                            <div style={{ fontWeight: 800, color: 'var(--acc)' }}>NIVEL {t.gravedad_real}/5</div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div style={{ marginBottom: 12 }}>
+                                                        <div style={{ fontSize: 9, opacity: 0.5, marginBottom: 4 }}>ANÁLISIS TÉCNICO</div>
+                                                        <div style={{ color: 'var(--tx1)', lineHeight: 1.5, background: 'rgba(255,255,255,0.02)', padding: 10, borderRadius: 5 }}>
+                                                            {t.notas_diagnostico || "Sin notas adicionales."}
+                                                        </div>
+                                                    </div>
+
+                                                    <div style={{ marginBottom: 5 }}>
+                                                        <div style={{ fontSize: 9, opacity: 0.5, marginBottom: 4 }}>ACCIÓN INMEDIATA RECOMENDADA</div>
+                                                        <div style={{ color: 'var(--tx1)', fontSize: 12, fontWeight: 600, borderLeft: '2px solid rgba(255,255,255,0.1)', paddingLeft: 10 }}>
+                                                            {t.accion_inmediata || "Ninguna acción especificada."}
+                                                        </div>
                                                     </div>
                                                 </div>
                                             )}
@@ -598,7 +622,18 @@ export default function Backoffice({ tab, setTab }) {
                                                         <div
                                                             key={s.val}
                                                             title={s.val}
-                                                            onClick={() => handleStatusUpdate(t.id, s.val)}
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                dbService.updateTicketStatus(t.id, s.val)
+                                                                    .then(() => {
+                                                                        loadTickets();
+                                                                        console.log(`Estado: ${s.val}`);
+                                                                    })
+                                                                    .catch(err => {
+                                                                        console.error(err);
+                                                                        alert("Error: Ejecuta el script SQL 99_fix_tickets_total.sql en Supabase.");
+                                                                    });
+                                                            }}
                                                             style={{
                                                                 width: 15, height: 15, borderRadius: '50%', background: s.col, cursor: 'pointer',
                                                                 opacity: t.estado === s.val ? 1 : 0.25,

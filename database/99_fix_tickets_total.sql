@@ -1,9 +1,18 @@
--- SCRIPT DE SINCRONIZACIÓN TOTAL PARA SISTEMA DE TICKETS
+-- SCRIPT DE SINCRONIZACIÓN TOTAL PARA SISTEMA DE TICKETS (VERSIÓN FINAL)
 -- Ejecuta este script en el editor SQL de Supabase para corregir errores 404/400
 
 -- 1. Asegurar columnas en operativo_tickets
 DO $$ 
 BEGIN 
+    -- Columnas de Gestión Básica
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='operativo_tickets' AND column_name='prioridad') THEN
+        ALTER TABLE public.operativo_tickets ADD COLUMN prioridad TEXT DEFAULT 'Normal';
+    END IF;
+
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='operativo_tickets' AND column_name='estado') THEN
+        ALTER TABLE public.operativo_tickets ADD COLUMN estado TEXT DEFAULT 'Pendiente';
+    END IF;
+
     -- Columnas de Diagnóstico Maestro
     IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='operativo_tickets' AND column_name='origen_falla') THEN
         ALTER TABLE public.operativo_tickets ADD COLUMN origen_falla TEXT;
@@ -74,5 +83,5 @@ CREATE POLICY "Ver conocimiento" ON public.operativo_knowledge FOR SELECT USING 
 DROP POLICY IF EXISTS "Insertar conocimiento" ON public.operativo_knowledge;
 CREATE POLICY "Insertar conocimiento" ON public.operativo_knowledge FOR INSERT WITH CHECK (true);
 
--- Notificar éxito
-COMMENT ON TABLE public.operativo_tickets IS 'Sincronizado con Éxito por Hacchi';
+-- Notificar éxito a nivel de esquema
+COMMENT ON TABLE public.operativo_tickets IS 'Sincronizado con Éxito por Hacchi el 2026-03-11';
