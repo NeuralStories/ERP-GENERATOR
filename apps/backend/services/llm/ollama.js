@@ -11,6 +11,7 @@ class OllamaProvider extends LLMProvider {
             baseURL: process.env.OLLAMA_URL || 'http://localhost:11434/v1',
             apiKey: 'ollama',
         });
+        console.log(`[Ollama] Cliente inicializado con baseURL: ${this.client.baseURL}`);
         this.defaultModel = process.env.OLLAMA_DEFAULT_MODEL || 'llama-3.1-8b';
     }
 
@@ -28,7 +29,8 @@ class OllamaProvider extends LLMProvider {
                 if (content) yield content;
             }
         } catch (error) {
-            console.error('Ollama Stream Error:', error);
+            console.error('[Ollama] Stream Error:', error.message);
+            if (error.status) console.error(`[Ollama] HTTP Status: ${error.status}`);
             throw error;
         }
     }
